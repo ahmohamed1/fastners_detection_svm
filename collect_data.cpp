@@ -5,7 +5,6 @@ g++ collect_data.cpp -I C:/src/vcpkg/installed/x64-windows/include -L C:/src/vcp
 */
 
 
-
 #include<iostream>
 #include <fstream>
 #include "opencv2/opencv.hpp"
@@ -29,6 +28,7 @@ string check_file(int fastners)
         if (ifile)
         {
             savingName = dataset_root + "/"  + fastners_name[fastners] + std::to_string(++images_number[fastners]) + ".png";
+            cout << savingName <<endl;
         }
         else
         {
@@ -62,7 +62,7 @@ int main()
  
 
         cv::imshow("Frame", frame);
-        char ikey = cv::waitKey(0);
+        char ikey = cv::waitKey(1);
 
         if (ikey == 'q')
             break;
@@ -80,6 +80,7 @@ int main()
         {
             string image_name = check_file(2);
             cv::imwrite(image_name, frame);
+            cout << "[INFO] washer was captured successfully.." <<endl;
         }
 
     }

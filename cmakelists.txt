@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.5)
+set(CMAKE_CXX_STANDARD 20)
+
+project(svm)
+# set(CMAKE_TOOLCHAIN_FILE "C:/src/vcpkg/scripts/buildsystems/vcpkg.cmake")
+
+set(CMAKE_TOOLCHAIN_FILE "C:/src/vcpkg/installed/x64-windows/share")
+
+# include_directories(C:\\src\\vcpkg\\install\\x64-windows\\include)
+# link_directories(C:\\src\\vcpkg\\install\\x64-windows\\lib)
+add_executable(collect_data collect_data.cpp)
+
+
+find_package(OpenCV CONFIG REQUIRED)
+target_link_libraries(collect_data PRIVATE ${OpenCV_LIBS})
