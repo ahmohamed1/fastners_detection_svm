@@ -22,7 +22,7 @@ string check_file(int fastners)
 {
     char number_str[3];
     sprintf(number_str, "_%03i", ++images_number[fastners]);
-    std::string savingName = dataset_root + "/"  + fastners_name[fastners] + "/" + fastners_name[fastners] + number_str + ".png";
+    std::string savingName = dataset_root + "/"  + fastners_name[fastners] + "/" + number_str + ".png";
     cout<<savingName<<endl;
     while (1)
     {
@@ -31,7 +31,7 @@ string check_file(int fastners)
         if (ifile)
         {
             sprintf(number_str,"_%03i", std::to_string(++images_number[fastners]));
-            savingName = dataset_root + fastners_name[fastners] + "/" + fastners_name[fastners] + number_str + ".png";
+            savingName = dataset_root + fastners_name[fastners] + "/" + number_str + ".png";
         }
         else
         {
