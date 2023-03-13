@@ -13,22 +13,25 @@ using namespace std;
 using namespace cv;
 
 // Define link to data files
-const string dataset_root = "dataset";
+const string dataset_root = "../../dataset/";
 const string fastners_name [3] = {"bolts", "nuts", "washers"};
 int images_number[3] = {0,0,0};
 
 
 string check_file(int fastners)
 {
-    std::string savingName = dataset_root + "/"  + fastners_name[fastners] + std::to_string(++images_number[fastners]) + ".png";
+    char number_str[3];
+    sprintf(number_str, "_%03i", ++images_number[fastners]);
+    std::string savingName = dataset_root + "/"  + fastners_name[fastners] + "/" + fastners_name[fastners] + number_str + ".png";
+    cout<<savingName<<endl;
     while (1)
     {
         FILE *file;
         std::ifstream ifile(savingName.c_str());
         if (ifile)
         {
-            savingName = dataset_root + "/"  + fastners_name[fastners] + std::to_string(++images_number[fastners]) + ".png";
-            cout << savingName <<endl;
+            sprintf(number_str,"_%03i", std::to_string(++images_number[fastners]));
+            savingName = dataset_root + fastners_name[fastners] + "/" + fastners_name[fastners] + number_str + ".png";
         }
         else
         {
@@ -70,11 +73,13 @@ int main()
         {
             string image_name = check_file(0);
             cv::imwrite(image_name, frame);
+            cout << "[INFO] bolts was captured successfully.." <<endl;
         }
         else if (ikey == 'n')
         {
             string image_name = check_file(1);
             cv::imwrite(image_name, frame);
+            cout << "[INFO] nuts was captured successfully.." <<endl;
         }
         else if (ikey == 'w')
         {
