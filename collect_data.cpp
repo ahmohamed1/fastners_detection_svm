@@ -78,6 +78,7 @@ int main()
         cv::Mat frame, rectangle_image ;
         cap >> frame;
         rectangle_image = frame.clone();
+        cv::Mat output_image;
         // Check if we capture image
         if (frame.empty())
         {
@@ -88,6 +89,8 @@ int main()
         if ( bottom_corner.x != 0 && top_corner.x != 0)
         {
             cv::rectangle(rectangle_image, top_corner,bottom_corner, cv::Scalar(0,255,0));
+            output_image = frame(cv::Range(top_corner.y, bottom_corner.y), 
+                                   cv::Range(top_corner.x, bottom_corner.x));
         }
         cv::imshow("Frame", rectangle_image);
         char ikey = cv::waitKey(1);
@@ -97,31 +100,35 @@ int main()
         else if (ikey == 'b')
         {
             string image_name = check_file(0);
-            cv::imwrite(image_name, frame);
+            cv::imwrite(image_name, output_image);
             cout << "[INFO] bolts was captured successfully.." <<endl;
         }
         else if (ikey == 'n')
         {
             string image_name = check_file(1);
-            cv::imwrite(image_name, frame);
+            cv::imwrite(image_name, output_image);
             cout << "[INFO] nuts was captured successfully.." <<endl;
         }
         else if (ikey == 'w')
         {
             string image_name = check_file(2);
-            cv::imwrite(image_name, frame);
+            cv::imwrite(image_name, output_image);
             cout << "[INFO] washer was captured successfully.." <<endl;
         }
         else if (ikey == 's')
         {
             string image_name = check_file(3);
-            cv::imwrite(image_name, frame);
+            cv::imwrite(image_name, output_image);
             cout << "[INFO] screw was captured successfully.." <<endl;
         }
         else if(ikey == 'i')
         {
-            cv::imwrite("../../dataset/background.png", frame);
+            cv::imwrite("../../dataset/background.png", output_image);
             cout << "[INFO] background was captured successfully.." <<endl;
+        }else if(ikey == 'o')
+        {
+            bottom_corner.x = 0;
+            top_corner.x = 0;
         }
 
     }
