@@ -144,7 +144,7 @@ int main(int argc, char* argv[]){
 	}
 
 	// Save the result in a xml file
-    string filename = "/home/abdulla/dev/workshop/opencv/Calibrate_single_camera/" + string("laptop_cam.xml");
+    string filename = "../../config/" + string("calibration.xml");
 	FileStorage fs(filename, FileStorage::WRITE);
 	fs << "cameraMatrix" << interinsic;
 	fs << "distCoeffs" << distCoeffs;
