@@ -105,6 +105,7 @@ class Extract_Fastner_features
     {
         cv::RNG rng(0xFFFFFFF);
         std::vector<std::vector<cv::Point>> contours;
+        //[Next, Previous, First_Child, Parent] 
         std::vector<cv::Vec4i> hierarchy;
         cv::findContours(input_image, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
         cv::Mat output_image = cv::Mat::zeros(input_image.rows, input_image.cols, CV_8UC3);
@@ -115,9 +116,31 @@ class Extract_Fastner_features
         }
         for(int i=0; i<contours.size(); i++)
         {
+            float with_hole = 0;
             cv::Scalar color = cv::Scalar(rng.uniform(0,255), rng.uniform(0, 255), rng.uniform(0, 255));
-            cv::drawContours(output_image, contours, i,color );
+            if(hierarchy[i][3] == -1 )//|| hierarchy[i][2] != -1
+            {   
+                if(hierarchy[i][2] != -1 )
+                    with_hole = 1;
+                cv::drawContours(output_image, contours, i,color );
+                float area = cv::contourArea(contours[i]);
+                if ( area > 250)
+                {
+                    
+                    cv::RotatedRect r = cv::minAreaRect(contours[i]);
+                    float width = r.size.width;
+                    float height = r.size.height;
+                    float aspect_ration = (width<height)? height/width : width/height;
+
+                    std::vector<float> data;
+                    data.push_back(area);
+                    data.push_back(aspect_ration);
+                    data.push_back(with_hole);
+                    std::cout<<i+1<<": "<< area <<"," << aspect_ration <<" " << with_hole <<std::endl;
+                }
+            }
         }
+        std::cout<<"///////////////////////"<<std::endl;
         return output_image;
     }
 

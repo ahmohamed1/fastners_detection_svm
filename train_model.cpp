@@ -22,7 +22,7 @@ int main(){
         cout << "[ERROR] Video is not streaming..." <<endl;
         return -1;
     }
-     while(1)
+     while(true)
     {
         // capture image 
         cv::Mat frame, rectangle_image ;
@@ -39,7 +39,7 @@ int main(){
 
         cv::imshow("output", output);
         cv::imshow("frame", frame);
-        char ikey = cv::waitKey(1);
+        char ikey = cv::waitKey(100);
         if(ikey == 'q')
         {
             break;
