@@ -64,6 +64,7 @@ class Extract_Fastner_features
     }
     cv::Mat connected_component_status(cv::Mat input_image)
     {
+        cv::RNG rng(0xFFFFFFF);
         cv::Mat labels, states, centroids;
         cv::Mat output_image = cv::Mat::zeros(input_image.rows, input_image.cols, CV_8UC3);
         int number_objects = cv::connectedComponentsWithStats(input_image, labels, states, centroids);
@@ -77,7 +78,7 @@ class Extract_Fastner_features
             std::cout<<"[INFO] number of object found is "<<number_objects - 1<<std::endl;
         }
         
-        cv::RNG rng(0xFFFFFFF);
+        
         for (int i = 1; i <number_objects; i++)
         {
             cv::Mat mask = labels==i;
@@ -100,6 +101,27 @@ class Extract_Fastner_features
         return output_image;
     }
 
+    cv::Mat find_contours(cv::Mat input_image)
+    {
+        cv::RNG rng(0xFFFFFFF);
+        std::vector<std::vector<cv::Point>> contours;
+        std::vector<cv::Vec4i> hierarchy;
+        cv::findContours(input_image, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
+        cv::Mat output_image = cv::Mat::zeros(input_image.rows, input_image.cols, CV_8UC3);
+        if(contours.size() == 0)
+        {
+            std::cout<<"[INFO] no object detected..."<<std::endl;
+            return output_image;
+        }
+        for(int i=0; i<contours.size(); i++)
+        {
+            cv::Scalar color = cv::Scalar(rng.uniform(0,255), rng.uniform(0, 255), rng.uniform(0, 255));
+            cv::drawContours(output_image, contours, i,color );
+        }
+        return output_image;
+    }
+
     private:
+        
 
 };

@@ -35,7 +35,7 @@ int main(){
         }
         cv::Mat croped_image = eff.crop_image(frame, cv::Point2i(128, 111), cv::Point2i(525,320));
         cv::Mat output = eff.extract_background(croped_image, background, 0);
-        output = eff.connected_component_status(output);
+        output = eff.find_contours(output);
 
         cv::imshow("output", output);
         cv::imshow("frame", frame);
