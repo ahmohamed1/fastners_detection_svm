@@ -261,10 +261,10 @@ class Extract_Fastner_features
         std::cout<<train_data.size()<<std::endl;
 
         cv::Mat train_data_mat(train_data.size()/3, 3, CV_32FC1, &train_data[0]);
-        cv::Mat train_label_mat(train_label.size(), 1, CV_32S, &train_label);
+        cv::Mat train_label_mat(train_label.size(), 1, CV_32S, &train_label[0]);
 
         cv::Mat test_data_mat(test_data.size()/3, 3, CV_32FC1, &test_data[0]);
-        cv::Mat test_label_mat(test_label.size(), 1, CV_32S, &test_label[0]);
+        cv::Mat test_label_mat(test_label.size(), 1, CV_32FC1, &test_label[0]);
 
         cv::Ptr<cv::ml::SVM> svm;
 
@@ -274,7 +274,7 @@ class Extract_Fastner_features
         svm->setKernel(cv::ml::SVM::CHI2);
         svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6));
 
-        svm->train(train_data_mat, cv::ml::ROW_SAMPLE, train_data_mat);
+        svm->train(train_data_mat, cv::ml::ROW_SAMPLE, train_label_mat);
     }
 
     private:
