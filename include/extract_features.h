@@ -10,10 +10,10 @@ class Extract_Fastner_features
 {
     public:
 
-    // Extract_Fastner_features()
-    // {
-    //     background = cv::imread("../../dataset/background.png"); 
-    // }
+    Extract_Fastner_features(cv::Mat _background)
+    {
+        background = _background.clone(); 
+    }
     // Process image and exctract the fastners only
     cv::Mat extract_background(cv::Mat image, cv::Mat background, int method = 1)
     {
@@ -153,14 +153,14 @@ class Extract_Fastner_features
         return output_image;
     }
 
-    std::vector<std::vector<float>> extract_feature(cv::Mat image)
+    std::vector<std::vector<float>> extract_feature(cv::Mat image, std::vector<cv::Point2d>* points=NULL, std::vector<cv::Rect>* rectangles=NULL)
     {
         std::vector<std::vector<float>> output_features;
         std::vector<std::vector<cv::Point>> contours;
         std::vector<cv::Vec4i> hierarchy;
         cv::findContours(image, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
         cv::Mat output_image = cv::Mat::zeros(image.rows, image.cols, CV_8UC3);
-
+        std::vector<std::vector<cv::Point> > contours_poly( contours.size() );
         if(contours.size() == 0)
         {
             std::cout<<"[INFO] no object detected..."<<std::endl;
@@ -187,6 +187,14 @@ class Extract_Fastner_features
                     data.push_back(aspect_ration);
                     data.push_back(with_hole);
                     output_features.push_back(data);
+                    if(points!=NULL){
+                        points->push_back(r.center);
+                    }
+                    if(rectangles!= NULL)
+                    {
+                        approxPolyDP( contours[i], contours_poly[i], 3, true );
+                        rectangles->push_back(cv::boundingRect( contours_poly[i] ));
+                    }
                 }
             }
         }
@@ -207,7 +215,7 @@ class Extract_Fastner_features
         }
         cv::Mat image;
         int image_indx = 0;
-        cv::Mat background = cv::imread("../../dataset/background.png"); 
+        // cv::Mat background = cv::imread("../../dataset/background.png"); 
         while(images.read(image))
         {
             cv::Mat processed_image = extract_background(image, background, 0);
@@ -275,9 +283,57 @@ class Extract_Fastner_features
         svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6));
 
         svm->train(train_data_mat, cv::ml::ROW_SAMPLE, train_label_mat);
+
+        cv::Mat test_predict;
+        svm->predict(test_data_mat, test_predict);
+        cv::Mat error_mat = test_predict != test_label_mat;
+        float error = 100.0f * countNonZero(error_mat) / test_label.size();
+        std::cout<<"Error: " << error<< "%" <<std::endl;
+
+        svm->save("../../output.xml");
+    }
+
+    cv::Mat predict_image(cv::Mat image)
+    {
+        cv::Ptr<cv::ml::SVM> svm;
+        svm= cv::Algorithm::load<ml::SVM>("../../output.xml"); // something is wrong
+        Mat img_output= image.clone();
+        std::vector<cv::Point2d> points;
+        std::vector<cv::Rect> rectangles;
+        cv::Mat processed_image = extract_background(image, background, 0);
+        std::vector<std::vector<float>> features = extract_feature(processed_image, &points, &rectangles);
+
+        for (int i = 0; i < features.size(); i++)
+        {
+            Mat data_mat(1,3, CV_32FC1, &features[i][0]);
+            float result= svm->predict(data_mat);
+            // std::cout << result << std::endl;
+            
+            std::stringstream ss;
+            cv::Scalar color;
+            if(result==0){
+            color= cv::Scalar(0,255,0); 
+            ss << "WASHER";
+            }
+            else if(result==1){
+            color= cv::Scalar(255,0,0); 
+            ss << "NUT" ;
+            }
+            else if(result==2){
+            color= cv::Scalar(0,0,255); 
+            ss << "BOLT";
+            }
+                
+            cv::putText(img_output, ss.str(), points[i], FONT_HERSHEY_SIMPLEX, 0.8, color);
+            cv::rectangle(img_output, rectangles[i],color);
+            cv::circle(img_output, points[i], 3,color, -1);
+
+        }
+
+        return img_output;        
     }
 
     private:
-        // cv::Mat background;
+        cv::Mat background;
 
 };

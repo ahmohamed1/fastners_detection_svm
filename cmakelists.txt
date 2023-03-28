@@ -9,8 +9,9 @@ set(CMAKE_TOOLCHAIN_FILE "C:/src/vcpkg/installed/x64-windows/share")
 
 include_directories( include )
 # add_executable(collect_data collect_data.cpp)
-add_executable(train_model train_model.cpp)
+# add_executable(train_model train_model.cpp)
+add_executable(prediction prediction.cpp)
 
 find_package(OpenCV CONFIG REQUIRED)
 # target_link_libraries(collect_data PRIVATE ${OpenCV_LIBS})
-target_link_libraries(train_model PRIVATE ${OpenCV_LIBS})
+target_link_libraries(prediction PRIVATE ${OpenCV_LIBS})
