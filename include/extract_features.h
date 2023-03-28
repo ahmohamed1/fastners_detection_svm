@@ -1,10 +1,19 @@
 #include<iostream>
 #include <fstream>
 #include "opencv2/opencv.hpp"
+#include <opencv2/ml.hpp>
+
+using namespace cv;
+using namespace cv::ml;
 
 class Extract_Fastner_features
 {
     public:
+
+    // Extract_Fastner_features()
+    // {
+    //     background = cv::imread("../../dataset/background.png"); 
+    // }
     // Process image and exctract the fastners only
     cv::Mat extract_background(cv::Mat image, cv::Mat background, int method = 1)
     {
@@ -123,7 +132,7 @@ class Extract_Fastner_features
                 if(hierarchy[i][2] != -1 )
                     with_hole = 1;
                 cv::drawContours(output_image, contours, i,color );
-                float area = cv::contourArea(contours[i]);
+                double area = cv::contourArea(contours[i]);
                 if ( area > 250)
                 {
                     
@@ -144,7 +153,131 @@ class Extract_Fastner_features
         return output_image;
     }
 
-    private:
+    std::vector<std::vector<float>> extract_feature(cv::Mat image)
+    {
+        std::vector<std::vector<float>> output_features;
+        std::vector<std::vector<cv::Point>> contours;
+        std::vector<cv::Vec4i> hierarchy;
+        cv::findContours(image, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
+        cv::Mat output_image = cv::Mat::zeros(image.rows, image.cols, CV_8UC3);
+
+        if(contours.size() == 0)
+        {
+            std::cout<<"[INFO] no object detected..."<<std::endl;
+            return output_features;
+        }
+        for(int i=0; i<contours.size(); i++)
+        {
+            float with_hole = 0;
+            if(hierarchy[i][3] == -1 )//|| hierarchy[i][2] != -1
+            {   
+                if(hierarchy[i][2] != -1 )
+                    with_hole = 1;
+                float area = cv::contourArea(contours[i]);
+                if ( area > 350)
+                {
+                    cv::drawContours(output_image, contours, i,cv::Scalar(0,0,255) );
+                    cv::RotatedRect r = cv::minAreaRect(contours[i]);
+                    float width = r.size.width;
+                    float height = r.size.height;
+                    float aspect_ration = (width<height)? height/width : width/height;
+
+                    std::vector<float> data;
+                    data.push_back(area);
+                    data.push_back(aspect_ration);
+                    data.push_back(with_hole);
+                    output_features.push_back(data);
+                }
+            }
+        }
+        // cv::imshow("output", output_image);
+        // cv::waitKey(80);
+        return output_features;
+    }
+
+    bool read_and_process_data(std::string directory, int label, int number_test, 
+                      std::vector<float> &train_data, std::vector<float> &test_data,
+                      std::vector<int> &train_label, std::vector<float> &test_label)
+    {
+        cv::VideoCapture images;
+        if( images.open(directory) == false)
+        {
+            std::cout<<"[ERROR] cannot open the folder..."<<std::endl;
+            return 0;
+        }
+        cv::Mat image;
+        int image_indx = 0;
+        cv::Mat background = cv::imread("../../dataset/background.png"); 
+        while(images.read(image))
+        {
+            cv::Mat processed_image = extract_background(image, background, 0);
+            std::vector<std::vector<float>> features = extract_feature(processed_image);
+            for (int i = 0; i < features.size(); i++)
+            {
+                if( image_indx >= number_test)
+                {
+                    train_data.push_back(features[i][0]);
+                    train_data.push_back(features[i][1]);
+                    train_data.push_back(features[i][2]);
+                    train_label.push_back(label);
+                }
+                else
+                {
+                    test_data.push_back(features[i][0]);
+                    test_data.push_back(features[i][1]);
+                    test_data.push_back(features[i][2]);
+                    test_label.push_back((float)label);
+                }
+            }
+            
+            image_indx++;
+        }
+        return true;
+    }
+
+    void train()
+    {
+        int number_test = 3;
+        std::vector<float> train_data;
+        std::vector<float> test_data;
+        std::vector<int>   train_label;
+        std::vector<float> test_label;
+
+
+        read_and_process_data("../../dataset/washers/_%03d.png", 0, 
+                              number_test, 
+                              train_data,  test_data,
+                              train_label, test_label);
         
+        read_and_process_data("../../dataset/nuts/_%03d.png", 1, 
+                              number_test, 
+                              train_data,  test_data,
+                              train_label, test_label);
+        
+        read_and_process_data("../../dataset/bolts/_%03d.png", 2, 
+                              number_test, 
+                              train_data,  test_data,
+                              train_label, test_label);
+        std::cout<<train_data.size()<<std::endl;
+
+        cv::Mat train_data_mat(train_data.size()/3, 3, CV_32FC1, &train_data[0]);
+        cv::Mat train_label_mat(train_label.size(), 1, CV_32S, &train_label);
+
+        cv::Mat test_data_mat(test_data.size()/3, 3, CV_32FC1, &test_data[0]);
+        cv::Mat test_label_mat(test_label.size(), 1, CV_32S, &test_label[0]);
+
+        cv::Ptr<cv::ml::SVM> svm;
+
+        svm = cv::ml::SVM::create();
+
+        svm->setType(cv::ml::SVM::C_SVC);
+        svm->setKernel(cv::ml::SVM::CHI2);
+        svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6));
+
+        svm->train(train_data_mat, cv::ml::ROW_SAMPLE, train_data_mat);
+    }
+
+    private:
+        // cv::Mat background;
 
 };
