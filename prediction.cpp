@@ -1,8 +1,18 @@
+/**
+ * @file prediction.cpp
+ *
+ * @brief using svm to track the fasteners
+ *
+ *
+ * @author Abdulla Mohamed
+ * Contact: abdll1@hotmail.com
+ *
+ */
 #include<iostream>
 #include <fstream>
 #include "opencv2/opencv.hpp"
 #include "include/extract_features.h"
-#include "include/tracking.h"
+#include "include/Centroid_Tracker.h"
 
 using namespace std;
 using namespace cv;

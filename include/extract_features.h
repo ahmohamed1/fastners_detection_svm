@@ -1,3 +1,15 @@
+/**
+ * @file extract_features.h
+ *
+ * @brief Using feature engineering the feature of fastners extracted using threshold and contours
+ * then using contours to determine each feature of object.
+ *
+ *
+ * @author Abdulla Mohamed
+ * Contact: abdll1@hotmail.com
+ *
+ */
+
 #include<iostream>
 #include <fstream>
 #include "opencv2/opencv.hpp"

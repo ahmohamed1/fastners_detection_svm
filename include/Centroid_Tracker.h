@@ -1,3 +1,14 @@
+/**
+ * @file Centroid_Tracker.h
+ *
+ * @brief This is an implementation to track an object using center of object
+ *
+ *
+ * @author Abdulla Mohamed
+ * Contact: abdll1@hotmail.com
+ *
+ */
+
 #include <iostream>
 #include "opencv2/opencv.hpp"
 
