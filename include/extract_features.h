@@ -145,11 +145,11 @@ class Extract_Fastner_features
                     data.push_back(area);
                     data.push_back(aspect_ration);
                     data.push_back(with_hole);
-                    std::cout<<i+1<<": "<< area <<"," << aspect_ration <<" " << with_hole <<std::endl;
+                    // std::cout<<i+1<<": "<< area <<"," << aspect_ration <<" " << with_hole <<std::endl;
                 }
             }
         }
-        std::cout<<"///////////////////////"<<std::endl;
+        // std::cout<<"///////////////////////"<<std::endl;
         return output_image;
     }
 
@@ -293,14 +293,15 @@ class Extract_Fastner_features
         svm->save("../../output.xml");
     }
 
-    cv::Mat predict_image(cv::Mat image)
+    cv::Mat predict_image(cv::Mat image, std::vector<cv::Rect>* rectangles_output=NULL)
     {
+        cv::Mat croped_image = crop_image(image, cropped_top, cropped_bottom);
         cv::Ptr<cv::ml::SVM> svm;
         svm= cv::Algorithm::load<ml::SVM>("../../output.xml"); // something is wrong
         Mat img_output= image.clone();
         std::vector<cv::Point2d> points;
         std::vector<cv::Rect> rectangles;
-        cv::Mat processed_image = extract_background(image, background, 0);
+        cv::Mat processed_image = extract_background(croped_image, background, 0);
         std::vector<std::vector<float>> features = extract_feature(processed_image, &points, &rectangles);
 
         for (int i = 0; i < features.size(); i++)
@@ -323,17 +324,24 @@ class Extract_Fastner_features
             color= cv::Scalar(0,0,255); 
             ss << "BOLT";
             }
-                
-            cv::putText(img_output, ss.str(), points[i], FONT_HERSHEY_SIMPLEX, 0.8, color);
-            cv::rectangle(img_output, rectangles[i],color);
-            cv::circle(img_output, points[i], 3,color, -1);
+            
+            cv::Point2d correct_pose(points[i].x+cropped_top.x, points[i].y+cropped_top.y);
+            cv::Rect correct_rect_pose(rectangles[i].x+cropped_top.x, rectangles[i].y+cropped_top.y, rectangles[i].width, rectangles[i].height);
+            cv::putText(img_output, ss.str(), correct_pose, FONT_HERSHEY_SIMPLEX, 0.8, color);
+            cv::rectangle(img_output, correct_rect_pose,color);
+            cv::circle(img_output, correct_pose, 3,color, -1);
 
+            if(rectangles_output != NULL)
+            {
+                rectangles_output->push_back(correct_rect_pose);
+            }
         }
-
         return img_output;        
     }
 
     private:
         cv::Mat background;
+        cv::Point2i cropped_top = cv::Point2i(128,111);
+        cv::Point2i cropped_bottom = cv::Point2i(525,320);
 
 };
