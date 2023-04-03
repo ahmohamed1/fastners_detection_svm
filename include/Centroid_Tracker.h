@@ -18,6 +18,7 @@ struct Centroid{
     cv::Point2d center;
     int id;
     int disapeared;
+    bool counted;
 
     void set_rectangle(cv::Rect rect)
     {
@@ -33,6 +34,14 @@ struct Centroid{
 class Centroid_Tracker{
     public:
 
+    Centroid_Tracker() = default;
+    Centroid_Tracker(cv::Point2d _line_point_1, cv::Point2d _line_point_2) : 
+                     line_point_1(_line_point_1), line_point_2(_line_point_2){}
+
+    int get_count()
+    {
+        return count;
+    }
     std::vector<Centroid> update(std::vector<cv::Rect> rectangles)
     {
         // remove objects and start count to remove the center
@@ -66,6 +75,7 @@ class Centroid_Tracker{
                     {
                         tracked_objects[i].set_rectangle(rectangles[j]);
                         object_exsits = true;
+                        pass_line(tracked_objects[i]);
                         rectangles.erase(rectangles.begin() + j);
                         continue;
                     }
@@ -88,13 +98,31 @@ class Centroid_Tracker{
         return tracked_objects;     
     }
 
+    void pass_line(Centroid &center)
+    {
+        if(center.center.x >= line_point_1.x && center.counted == false)
+        {
+            center.counted = false;
+        }
+        else
+        {
+            if(center.counted == false)
+            {
+                center.counted = true;
+                count ++;
+            }
+        }
+    }
+
 
     private:
         int object_id = 0;
         std::vector<Centroid> tracked_objects;
         int max_disappeared = 50;
         int max_distance = 20;
-        
+        cv::Point2d line_point_1;
+        cv::Point2d line_point_2;
+        int count = 0;
         
         void register_object(cv::Rect rectangle)
         {

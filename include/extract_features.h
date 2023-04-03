@@ -18,6 +18,9 @@
 using namespace cv;
 using namespace cv::ml;
 
+
+
+
 class Extract_Fastner_features
 {
     public:
@@ -355,5 +358,6 @@ class Extract_Fastner_features
         cv::Mat background;
         cv::Point2i cropped_top = cv::Point2i(128,111);
         cv::Point2i cropped_bottom = cv::Point2i(525,320);
+        
 
 };

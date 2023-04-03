@@ -21,10 +21,12 @@ using namespace cv;
 
 
 int main(){
+    cv::Point2d point_1(320,0);
+    cv::Point2d point_2(320,400);
 
     cv::Mat background = cv::imread("../../dataset/background.png");
     Extract_Fastner_features eff(background);
-    Centroid_Tracker centroid_tracker;
+    Centroid_Tracker centroid_tracker(point_1, point_2);
     
     cv::VideoCapture cap(0) ;
     cap.set(cv::CAP_PROP_AUTOFOCUS, 0); // turn the autofocus off
@@ -49,6 +51,8 @@ int main(){
         cv::Mat output = eff.predict_image(frame, &rectangles);
  
         auto new_rectangles = centroid_tracker.update(rectangles);
+        cv::line(frame,point_1, point_2, cv::Scalar(0,0,255));
+
         for (int i = 0; i < new_rectangles.size(); i++)
         {
             std::stringstream ss;
@@ -58,7 +62,10 @@ int main(){
             cv::putText(frame, ss.str(), new_rectangles[i].center, FONT_HERSHEY_SIMPLEX, 0.9, cv::Scalar(0,0,255));
             cv::circle(frame, new_rectangles[i].center, 3,cv::Scalar(0,0,255), -1);
         }
-        
+        std::stringstream ssd;
+        ssd << "Count:";
+        ssd << centroid_tracker.get_count();
+        cv::putText(frame, ssd.str(), cv::Point2d(10,30), FONT_HERSHEY_SIMPLEX, 0.9, cv::Scalar(0,0,255));
         cv::imshow("output", frame);
         cv::imshow("output detection", output);
         char ikey = cv::waitKey(100);
