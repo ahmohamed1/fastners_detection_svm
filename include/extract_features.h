@@ -308,7 +308,7 @@ class Extract_Fastner_features
         svm->save("../../output.xml");
     }
 
-    cv::Mat predict_image(cv::Mat image, std::vector<cv::Rect>* rectangles_output=NULL)
+    cv::Mat predict_image(cv::Mat image, std::vector<cv::Rect>* rectangles_output=NULL, std::vector<int>* classes_list=NULL)
     {
         cv::Mat croped_image = crop_image(image, cropped_top, cropped_bottom);
         cv::Ptr<cv::ml::SVM> svm;
@@ -349,6 +349,8 @@ class Extract_Fastner_features
             if(rectangles_output != NULL)
             {
                 rectangles_output->push_back(correct_rect_pose);
+                if(classes_list != NULL)
+                    classes_list->push_back(result);
             }
         }
         return img_output;        

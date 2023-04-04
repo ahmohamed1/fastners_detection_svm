@@ -17,6 +17,7 @@ struct Centroid{
     cv::Rect rectangle;
     cv::Point2d center;
     int id;
+    int class_number;
     int disapeared;
     bool counted;
 
@@ -35,14 +36,23 @@ class Centroid_Tracker{
     public:
 
     Centroid_Tracker() = default;
-    Centroid_Tracker(cv::Point2d _line_point_1, cv::Point2d _line_point_2) : 
-                     line_point_1(_line_point_1), line_point_2(_line_point_2){}
+    Centroid_Tracker(cv::Point2d _line_point_1, cv::Point2d _line_point_2, int number_of_classes) : 
+                     line_point_1(_line_point_1), line_point_2(_line_point_2)
+                     {
+                        count_classes = new int[number_of_classes];
+
+                        for (int i = 0; i < number_of_classes; i++)
+                        {
+                            count_classes[i] = 0;
+                        }
+                        
+                     }
 
     int get_count()
     {
         return count;
     }
-    std::vector<Centroid> update(std::vector<cv::Rect> rectangles)
+    std::vector<Centroid> update(std::vector<cv::Rect> rectangles, std::vector<int> classes_list)
     {
         // remove objects and start count to remove the center
         if(rectangles.empty())
@@ -61,7 +71,7 @@ class Centroid_Tracker{
         // if first time and the objects is empty assigne new ideas
         if(tracked_objects.empty())
         {
-            register_loop(rectangles);
+            register_loop(rectangles, classes_list);
         }
         // match the new rectangle to the old rectangles
         else
@@ -77,6 +87,7 @@ class Centroid_Tracker{
                         object_exsits = true;
                         pass_line(tracked_objects[i]);
                         rectangles.erase(rectangles.begin() + j);
+                        classes_list.erase(classes_list.begin() + j);
                         continue;
                     }
                 }
@@ -92,7 +103,7 @@ class Centroid_Tracker{
                     }
                 }
             }
-            register_loop(rectangles);
+            register_loop(rectangles, classes_list);
             return tracked_objects;
         }   
         return tracked_objects;     
@@ -110,24 +121,31 @@ class Centroid_Tracker{
             {
                 center.counted = true;
                 count ++;
+                count_classes[center.class_number] ++;
             }
         }
+    }
+
+    int get_class_count(int id)
+    {
+        return count_classes[id];
     }
 
 
     private:
         int object_id = 0;
         std::vector<Centroid> tracked_objects;
-        int max_disappeared = 50;
+        int max_disappeared = 35;
         int max_distance = 20;
         cv::Point2d line_point_1;
         cv::Point2d line_point_2;
         int count = 0;
+        int *count_classes;
         
-        void register_object(cv::Rect rectangle)
+        void register_object(cv::Rect rectangle, int _class)
         {
             auto center = compute_center(rectangle);
-            tracked_objects.push_back(Centroid(rectangle, center, object_id, 0));
+            tracked_objects.push_back(Centroid(rectangle, center, object_id, _class, 0));
             object_id++;
         }
 
@@ -159,14 +177,11 @@ class Centroid_Tracker{
             return sqrt(pow(center_1.x-center_2.x, 2)+ pow(center_1.y-center_2.y,2));
         }
 
-        void register_loop(std::vector<cv::Rect> rectangles)
+        void register_loop(std::vector<cv::Rect> rectangles, std::vector<int> classes)
         {
             for (int x = 0; x < rectangles.size(); x++)
             {
-                register_object(rectangles[x]);
+                register_object(rectangles[x], classes[x]);
             }
         }
-
-
-
 };
