@@ -154,14 +154,14 @@ void train()
 
 In summary, this code performs the following steps:
 
-1.Reads image data from three different directories: "washers", "nuts", and "bolts".
-2.Splits the image data into training and testing sets.
-3.Converts the training and testing data into matrices using cv::Mat class.
-4.Creates an SVM model using cv::ml::SVM::create() function and sets its properties.
-5.Trains the SVM model using the training data and their corresponding labels.
-6.Predicts the labels of the test data using the trained SVM model.
-7.Calculates the prediction error.
-8.Saves the trained SVM model to an XML file named "output.xml".
+1. Reads image data from three different directories: "washers", "nuts", and "bolts".
+2. Splits the image data into training and testing sets.
+3. Converts the training and testing data into matrices using cv::Mat class.
+4. Creates an SVM model using cv::ml::SVM::create() function and sets its properties.
+5. Trains the SVM model using the training data and their corresponding labels.
+6. Predicts the labels of the test data using the trained SVM model.
+7. Calculates the prediction error.
+8. Saves the trained SVM model to an XML file named "output.xml".
 
 
 ## Prediction
