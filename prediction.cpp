@@ -48,6 +48,9 @@ int main(){
         // capture image 
         cv::Mat frame, rectangle_image ;
         cap >> frame;
+        cv::Mat frame_original;
+
+        frame.copyTo(frame_original);
         // Check if we capture image
         if (frame.empty())
         {
@@ -94,6 +97,7 @@ int main(){
         
 
         cv::imshow("output", frame);
+        cv::imshow("frame_original", frame_original);
         char ikey = cv::waitKey(100);
         if(ikey == 'q')
         {

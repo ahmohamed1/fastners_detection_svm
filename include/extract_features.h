@@ -50,6 +50,7 @@ class Extract_Fastner_features
             cv::threshold(output, output, 30, 255, cv::THRESH_BINARY);
             cv::cvtColor( output, output, cv::COLOR_BGR2GRAY);
         }
+        // cv::imshow("back_ground", output);
         return output;
     }
 
@@ -213,7 +214,7 @@ class Extract_Fastner_features
                 }
             }
         }
-        // cv::imshow("output", output_image);
+        // cv::imshow("countor", output_image);
         // cv::waitKey(80);
         return output_features;
     }
@@ -311,6 +312,7 @@ class Extract_Fastner_features
     cv::Mat predict_image(cv::Mat image, std::vector<cv::Rect>* rectangles_output=NULL, std::vector<int>* classes_list=NULL)
     {
         cv::Mat croped_image = crop_image(image, cropped_top, cropped_bottom);
+        // cv::imshow("cropped", croped_image);
         cv::Ptr<cv::ml::SVM> svm;
         svm= cv::Algorithm::load<ml::SVM>("../../output.xml"); // something is wrong
         Mat img_output= image.clone();
