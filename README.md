@@ -255,11 +255,3 @@ In case an object is lost in the tracking process, the ID remains in the frame f
 ## Sources:
 [1] OpenCV By Example by Prateek Joshi, David Millán Escrivá and Vinícius Godoy
 
-
-## Steps:
-1. Image collection
-2. Feature Extractions
-3. Train SVM
-4. Implement the trained model
-5. Track fastners at speed of conveyor
-6. Count system
